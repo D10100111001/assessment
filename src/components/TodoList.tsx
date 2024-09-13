@@ -4,7 +4,7 @@ import { Todo } from "../types";
 
 interface TodoListProps {
   todos: Todo[];
-  onToggleTodo: (id: string) => void;
+  onToggleTodo: (id: string) => Promise<void>;
 }
 
 const TodoList: React.FC<TodoListProps> = React.memo(({ todos, onToggleTodo }) => {

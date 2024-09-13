@@ -3,6 +3,7 @@ import TodoList from "./components/TodoList";
 import { Todo } from "./types";
 import { getTodos, updateTodo } from "./api";
 import { isOverdue, sortTodos } from "./utils";
+import { LoadingSpinner } from "./components/LoadingSpinner";
 
 type FilterType = "all" | "active" | "completed" | "overdue";
 
@@ -70,7 +71,7 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className="">
+    <div>
       <div className="bg-blue-800 text-white p-2 flex items-center">
         <h1 className="text-2xl font-bold">Todo App</h1>
       </div>
@@ -122,7 +123,9 @@ const App: React.FC = () => {
           </button>
         </div>
         {isLoading ? (
-          <p>Loading...</p>
+          <div className="flex justify-center items-center h-64">
+            <LoadingSpinner />
+          </div>
         ) : (
           <TodoList todos={filteredTodos} onToggleTodo={handleToggleTodo} />
         )}

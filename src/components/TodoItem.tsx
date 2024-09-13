@@ -1,16 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import { Todo } from "../types";
 import { formatDate, isOverdue, getRelativeTimeString } from "../utils";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface TodoItemProps {
   todo: Todo;
-  onToggle: (id: string) => void;
+  onToggle: (id: string) => Promise<void>;
 }
 
 const TodoItem: React.FC<TodoItemProps> = React.memo(({ todo, onToggle }) => {
   const isTaskOverdue = isOverdue(todo);
+  const [isProcessingToggle, setIsProcessingToggle] = useState(false);
+
+  const getColorClass = (isBorder = false) => {
+    const prefix = isBorder ? "border" : "text";
+    if (todo.isComplete) return `${prefix}-green-500`;
+    if (isTaskOverdue) return `${prefix}-red-500`;
+    return `${prefix}-gray-700`;
+  };
 
   return (
     <li
@@ -25,19 +34,30 @@ const TodoItem: React.FC<TodoItemProps> = React.memo(({ todo, onToggle }) => {
     >
       <Checkbox
         checked={todo.isComplete}
-        onCheckedChange={() => onToggle(todo.id)}
+        onCheckedChange={async () => {
+          if (isProcessingToggle) return;
+          setIsProcessingToggle(true);
+          await onToggle(todo.id);
+          setIsProcessingToggle(false);
+        }}
+        disabled={isProcessingToggle}
         className={`w-5 h-5 border ${
           todo.isComplete
             ? "border-green-500"
             : isTaskOverdue
             ? "border-red-500"
-            : "border-gray-600"
+            : "border-gray-700"
         } rounded-sm flex justify-center items-center`}
         aria-label={`Mark "${todo.description}" as ${
           todo.isComplete ? "incomplete" : "complete"
         }`}
       >
-        {todo.isComplete && <CheckIcon className="text-green-500 size-6" />}
+        {isProcessingToggle && (
+          <LoadingSpinner className={`size-4 ${getColorClass()}`} />
+        )}
+        {!isProcessingToggle && todo.isComplete && (
+          <CheckIcon className={`${getColorClass()} size-6`} />
+        )}
       </Checkbox>
       <span
         className={`flex-grow ${
@@ -49,11 +69,7 @@ const TodoItem: React.FC<TodoItemProps> = React.memo(({ todo, onToggle }) => {
       {todo.dueDate && (
         <div className="flex flex-col items-end">
           <span
-            className={`text-xs ${
-              isTaskOverdue && !todo.isComplete
-                ? "text-red-500 font-bold"
-                : "text-gray-700"
-            }`}
+            className={`text-xs ${getColorClass()}`}
             aria-label={`Due date: ${formatDate(todo.dueDate)}`}
           >
             {formatDate(todo.dueDate)}
