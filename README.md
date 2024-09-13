@@ -2,6 +2,10 @@
 
 This is a feature-rich Todo application built with React, TypeScript, and Tailwind CSS.
 
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop](screenshots/desktop.png) | ![Mobile](screenshots/mobile.png) |
+
 ## Features
 
 - View, add, and manage todos
